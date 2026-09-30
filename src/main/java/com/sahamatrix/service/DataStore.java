@@ -1,12 +1,16 @@
 package com.sahamatrix.service;
 
+import com.sahamatrix.entity.*;
 import com.sahamatrix.model.DailyConsumption;
 import com.sahamatrix.model.MedicineStock;
 import com.sahamatrix.model.PHC;
-import org.springframework.stereotype.Component;
-
+import com.sahamatrix.repository.*;
 import jakarta.annotation.PostConstruct;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,29 +36,184 @@ public class DataStore {
     public static final LocalDate INITIAL_DATE = LocalDate.of(2026, 10, 1);
 
     private final ForecastService forecastService;
+    private final StateRepository stateRepository;
+    private final DistrictRepository districtRepository;
+    private final PhcRepository phcRepository;
+    private final MedicineRepository medicineRepository;
+    private final PhcStockRepository phcStockRepository;
+    private final DailyConsumptionRepository dailyConsumptionRepository;
+    private final TransferAuditRepository transferAuditRepository;
 
     private final Map<String, PHC> phcMap = new ConcurrentHashMap<>();
     private final List<PHC> phcList = new ArrayList<>();
     private final Map<String, Double> outbreakMultipliers = new ConcurrentHashMap<>();
     private volatile LocalDate simDate = INITIAL_DATE;
 
-    public DataStore(ForecastService forecastService) {
+    public DataStore(ForecastService forecastService,
+                     StateRepository stateRepository,
+                     DistrictRepository districtRepository,
+                     PhcRepository phcRepository,
+                     MedicineRepository medicineRepository,
+                     PhcStockRepository phcStockRepository,
+                     DailyConsumptionRepository dailyConsumptionRepository,
+                     TransferAuditRepository transferAuditRepository) {
         this.forecastService = forecastService;
+        this.stateRepository = stateRepository;
+        this.districtRepository = districtRepository;
+        this.phcRepository = phcRepository;
+        this.medicineRepository = medicineRepository;
+        this.phcStockRepository = phcStockRepository;
+        this.dailyConsumptionRepository = dailyConsumptionRepository;
+        this.transferAuditRepository = transferAuditRepository;
     }
 
     @PostConstruct
-    public void init() {
-        reset();
+    public synchronized void init() {
+        try {
+            if (phcRepository.count() == 0) {
+                seedDatabase();
+            }
+            loadFromDatabase();
+        } catch (Exception e) {
+            System.err.println("Warning: Could not connect to MySQL database (" + e.getMessage() + "). Falling back to in-memory seed.");
+            resetInMemoryOnly();
+        }
     }
 
+    @Transactional
+    public synchronized void seedDatabase() {
+        Random rng = new Random(42);
+
+        // 1. Seed States
+        for (String code : STATES) {
+            stateRepository.save(new StateEntity(code, STATE_NAMES.get(code)));
+        }
+
+        // 2. Seed Medicines
+        for (String med : MEDICINES) {
+            String unit = med.equals("Paracetamol") || med.equals("Amoxicillin") ? "Tablets" :
+                    med.equals("ORS") ? "Sachets" :
+                    med.equals("Insulin") ? "Vials" : "Blisters";
+            medicineRepository.save(new MedicineEntity(med.toLowerCase().replace(" ", "-"), med, unit));
+        }
+
+        // 3. Generate PHCs with 60 days of consumption
+        List<PHC> generated = generatePHCs(rng);
+
+        for (PHC phc : generated) {
+            phcRepository.save(new PhcEntity(
+                    phc.getId(), phc.getName(), phc.getState(), phc.getDistrict(),
+                    phc.getLat(), phc.getLng(), phc.getBedsTotal(), phc.getBedsOccupied(),
+                    phc.getStaffTotal(), phc.getStaffPresent()
+            ));
+
+            for (Map.Entry<String, MedicineStock> entry : phc.getStockMap().entrySet()) {
+                String med = entry.getKey();
+                MedicineStock stock = entry.getValue();
+
+                phcStockRepository.save(new PhcStockEntity(phc.getId(), med, stock.getQuantity()));
+
+                for (DailyConsumption dc : stock.getHistory()) {
+                    dailyConsumptionRepository.save(new DailyConsumptionEntity(phc.getId(), med, dc.date(), dc.units()));
+                }
+            }
+        }
+    }
+
+    public synchronized void loadFromDatabase() {
+        phcMap.clear();
+        phcList.clear();
+        outbreakMultipliers.clear();
+        simDate = INITIAL_DATE;
+
+        List<PhcEntity> phcEntities = phcRepository.findAll();
+
+        for (PhcEntity entity : phcEntities) {
+            Map<String, MedicineStock> stockMap = new LinkedHashMap<>();
+            List<PhcStockEntity> stockEntities = phcStockRepository.findByPhcId(entity.getId());
+
+            for (PhcStockEntity stockEntity : stockEntities) {
+                String med = stockEntity.getMedicine();
+                List<DailyConsumptionEntity> dcEntities = dailyConsumptionRepository
+                        .findByPhcIdAndMedicineOrderByRecordDateAsc(entity.getId(), med);
+
+                List<DailyConsumption> history = new ArrayList<>();
+                for (DailyConsumptionEntity dc : dcEntities) {
+                    history.add(new DailyConsumption(dc.getRecordDate(), dc.getUnits()));
+                }
+
+                stockMap.put(med, new MedicineStock(med, stockEntity.getQuantity(), history));
+            }
+
+            PHC phc = new PHC(
+                    entity.getId(), entity.getName(), entity.getState(), entity.getDistrict(),
+                    entity.getLat(), entity.getLng(), entity.getBedsTotal(), entity.getBedsOccupied(),
+                    entity.getStaffPresent(), entity.getStaffTotal(), stockMap
+            );
+
+            phcMap.put(phc.getId(), phc);
+            phcList.add(phc);
+        }
+    }
+
+    public synchronized void updateStockInDb(String phcId, String medicine, double newQuantity) {
+        try {
+            Optional<PhcStockEntity> stockOpt = phcStockRepository.findByPhcIdAndMedicine(phcId, medicine);
+            if (stockOpt.isPresent()) {
+                PhcStockEntity entity = stockOpt.get();
+                entity.setQuantity(newQuantity);
+                phcStockRepository.save(entity);
+            } else {
+                phcStockRepository.save(new PhcStockEntity(phcId, medicine, newQuantity));
+            }
+        } catch (Exception e) {
+            System.err.println("Warning: Failed to update stock in MySQL: " + e.getMessage());
+        }
+    }
+
+    public synchronized void recordDailyConsumptionInDb(String phcId, String medicine, String recordDate, double units) {
+        try {
+            dailyConsumptionRepository.save(new DailyConsumptionEntity(phcId, medicine, recordDate, units));
+        } catch (Exception e) {
+            System.err.println("Warning: Failed to persist daily consumption to MySQL: " + e.getMessage());
+        }
+    }
+
+    public synchronized void recordTransferAudit(String transferId, String medicine, double quantity,
+                                                String fromPhcId, String toPhcId, double distanceKm,
+                                                boolean crossState) {
+        try {
+            transferAuditRepository.save(new TransferAuditEntity(
+                    transferId, medicine, quantity, fromPhcId, toPhcId,
+                    distanceKm, crossState, LocalDateTime.now().toString()
+            ));
+        } catch (Exception e) {
+            System.err.println("Warning: Failed to record transfer audit in MySQL: " + e.getMessage());
+        }
+    }
+
+    @Transactional
     public synchronized void reset() {
+        try {
+            dailyConsumptionRepository.deleteAll();
+            phcStockRepository.deleteAll();
+            phcRepository.deleteAll();
+            transferAuditRepository.deleteAll();
+            seedDatabase();
+            loadFromDatabase();
+        } catch (Exception e) {
+            System.err.println("Warning: Reset in MySQL failed, resetting in memory: " + e.getMessage());
+            resetInMemoryOnly();
+        }
+    }
+
+    private synchronized void resetInMemoryOnly() {
         phcMap.clear();
         phcList.clear();
         outbreakMultipliers.clear();
         simDate = INITIAL_DATE;
 
         Random rng = new Random(42);
-
         List<PHC> generated = generatePHCs(rng);
         for (PHC phc : generated) {
             phcMap.put(phc.getId(), phc);
@@ -65,7 +224,6 @@ public class DataStore {
     private List<PHC> generatePHCs(Random rng) {
         List<PHC> result = new ArrayList<>();
 
-        // 1. Maharashtra (MH) - Nagpur, Pune, Nashik, Aurangabad
         DistrictDef[] mhDistricts = {
                 new DistrictDef("Nagpur", 21.1458, 79.0882, new String[]{
                         "Nagpur Central PHC", "Sitabuldi Urban Health Centre", "Dharampeth Primary Clinic",
@@ -85,7 +243,6 @@ public class DataStore {
                 })
         };
 
-        // 2. Uttar Pradesh (UP) - Lucknow, Varanasi, Kanpur, Gorakhpur (noisiest data)
         DistrictDef[] upDistricts = {
                 new DistrictDef("Lucknow", 26.8467, 80.9462, new String[]{
                         "Hazratganj Urban PHC", "Alambagh Primary Health Centre", "Gomti Nagar Health Post",
@@ -105,7 +262,6 @@ public class DataStore {
                 })
         };
 
-        // 3. Tamil Nadu (TN) - Chennai, Madurai, Coimbatore, Salem
         DistrictDef[] tnDistricts = {
                 new DistrictDef("Chennai", 13.0827, 80.2707, new String[]{
                         "T Nagar Urban Health Centre", "Mylapore Primary Clinic", "Anna Nagar Community Health Post",
@@ -126,7 +282,7 @@ public class DataStore {
         };
 
         result.addAll(buildStatePHCs("MH", mhDistricts, rng, 0.05));
-        result.addAll(buildStatePHCs("UP", upDistricts, rng, 0.16)); // UP noisiest
+        result.addAll(buildStatePHCs("UP", upDistricts, rng, 0.16));
         result.addAll(buildStatePHCs("TN", tnDistricts, rng, 0.06));
 
         return result;
@@ -160,6 +316,14 @@ public class DataStore {
 
         int phcIndex = 0;
         for (DistrictDef dist : districts) {
+            // Save district in repository if not present
+            try {
+                districtRepository.save(new DistrictEntity(
+                        dist.districtName.toLowerCase().replace(" ", "-"),
+                        stateCode, dist.districtName, dist.centerLat, dist.centerLng
+                ));
+            } catch (Exception ignored) {}
+
             for (int i = 0; i < dist.phcNames.length; i++) {
                 String id = String.format("phc-%s-%02d", stateCode.toLowerCase(), count++);
                 String name = dist.phcNames[i];

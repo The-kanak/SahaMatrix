@@ -308,6 +308,10 @@ public class ApiController {
                         double amt = Math.min(rec.quantity(), fromStock.getQuantity());
                         fromStock.addQuantity(-amt);
                         toStock.addQuantity(amt);
+                        dataStore.updateStockInDb(fromOpt.get().getId(), rec.medicine(), fromStock.getQuantity());
+                        dataStore.updateStockInDb(toOpt.get().getId(), rec.medicine(), toStock.getQuantity());
+                        dataStore.recordTransferAudit(rec.id(), rec.medicine(), amt,
+                                fromOpt.get().getId(), toOpt.get().getId(), rec.distanceKm(), rec.crossState());
                         applied++;
                     }
                 }
@@ -352,6 +356,8 @@ public class ApiController {
 
                     stock.setQuantity(Math.max(0.0, stock.getQuantity() - consumed));
                     stock.addConsumption(new DailyConsumption(nextDay.toString(), consumed));
+                    dataStore.updateStockInDb(phc.getId(), med, stock.getQuantity());
+                    dataStore.recordDailyConsumptionInDb(phc.getId(), med, nextDay.toString(), consumed);
                 }
             }
             dataStore.setSimDate(nextDay);
@@ -495,6 +501,7 @@ public class ApiController {
                 MedicineStock stock = phcOpt.get().getMedicineStock(medicine);
                 if (stock != null) {
                     stock.setQuantity(qty);
+                    dataStore.updateStockInDb(phcId, medicine, qty);
                     accepted++;
                 } else {
                     rejected.add(new CSVImportResponse.RejectedRowDto(lineNum, "Medicine not tracked at PHC"));
@@ -578,6 +585,7 @@ public class ApiController {
                     MedicineStock stock = phc.getMedicineStock(row.medicine());
                     if (stock != null && row.quantity() >= 0) {
                         stock.setQuantity(row.quantity());
+                        dataStore.updateStockInDb(request.phcId(), row.medicine(), row.quantity());
                     }
                 }
             }
