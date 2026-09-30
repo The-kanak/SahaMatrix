@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -29,9 +30,18 @@ public class GeminiService {
     // In-memory cache by input hash
     private final Map<String, String> cache = new ConcurrentHashMap<>();
 
-    public GeminiService(@Value("${gemini.model:gemini-1.5-flash}") String modelName) {
-        this.modelName = modelName;
-        this.apiKey = System.getenv("GEMINI_API_KEY");
+    public GeminiService(
+            @Value("${gemini.model:gemini-1.5-flash}") String modelName,
+            @Value("${gemini.api-key:}") String configuredKey) {
+        this.modelName = (modelName != null && !modelName.isBlank()) ? modelName.trim() : "gemini-1.5-flash";
+        String envKey = System.getenv("GEMINI_API_KEY");
+        if (envKey != null && !envKey.isBlank()) {
+            this.apiKey = envKey.trim();
+        } else if (configuredKey != null && !configuredKey.isBlank()) {
+            this.apiKey = configuredKey.trim();
+        } else {
+            this.apiKey = null;
+        }
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(8))
                 .build();
@@ -245,9 +255,11 @@ public class GeminiService {
 
     // Helper: call Gemini text API
     private String callGeminiGenerateContent(String prompt, boolean jsonMode) {
+        if (!isConfigured()) return null;
         try {
+            String encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8);
             String url = String.format("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s",
-                    modelName, apiKey);
+                    modelName, encodedKey);
 
             Map<String, Object> reqBody = new HashMap<>();
             Map<String, Object> content = new HashMap<>();
@@ -266,6 +278,7 @@ public class GeminiService {
                     .uri(URI.create(url))
                     .timeout(Duration.ofSeconds(8))
                     .header("Content-Type", "application/json")
+                    .header("x-goog-api-key", apiKey)
                     .POST(HttpRequest.BodyPublishers.ofString(bodyJson, StandardCharsets.UTF_8))
                     .build();
 
@@ -280,15 +293,19 @@ public class GeminiService {
                     }
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+            // Safely caught: never leak key, endpoints, or traces in logs
+        }
         return null;
     }
 
     // Helper: call Gemini multimodal vision API
     private String callGeminiVision(String base64Image, String mimeType, String prompt) {
+        if (!isConfigured()) return null;
         try {
+            String encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8);
             String url = String.format("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s",
-                    modelName, apiKey);
+                    modelName, encodedKey);
 
             Map<String, Object> textPart = Map.of("text", prompt);
             Map<String, Object> imagePart = Map.of(
@@ -310,6 +327,7 @@ public class GeminiService {
                     .uri(URI.create(url))
                     .timeout(Duration.ofSeconds(8))
                     .header("Content-Type", "application/json")
+                    .header("x-goog-api-key", apiKey)
                     .POST(HttpRequest.BodyPublishers.ofString(bodyJson, StandardCharsets.UTF_8))
                     .build();
 
@@ -324,7 +342,9 @@ public class GeminiService {
                     }
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+            // Safely caught: never leak key, endpoints, or traces in logs
+        }
         return null;
     }
 

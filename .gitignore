@@ -5,3 +5,13 @@ node_modules/
 .DS_Store
 dist/
 build/
+
+# Local secret and environment files
+.env
+.env.*
+*.env
+application-local.properties
+application-secret.properties
+*.key
+*.pem
+secrets/
