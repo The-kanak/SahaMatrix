@@ -32,6 +32,7 @@ function Test-Endpoint($method, $path, $body, $expectedSubstr) {
 }
 
 Test-Endpoint "GET" "/api/health" "" "UP"
+Test-Endpoint "POST" "/api/simulate/reset" "" "true"
 Test-Endpoint "GET" "/api/summary" "" "simDate"
 Test-Endpoint "GET" "/api/phcs?state=MH" "" "phc-mh"
 Test-Endpoint "GET" "/api/phcs/phc-up-01" "" "Hazratganj"

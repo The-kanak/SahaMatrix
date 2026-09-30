@@ -46,8 +46,9 @@ public class GeminiService {
         String language = normalizeLang(lang);
         String prompt = String.format(Locale.US,
                 "SYSTEM: You are SahaMatrix AI. You explain health supply chain alerts grounded strictly in the data. " +
-                        "Language: %s. Use simple, direct language. Never invent numbers. Respond ONLY with valid JSON with keys: " +
-                        "\"summary\", \"likelyCause\", \"recommendedAction\", \"urgency\".\n\n" +
+                        "Language: %s. Use simple, direct language. Never invent numbers. Use only the supplied telemetry. " +
+                        "Do not invent numerical facts. If information is unavailable, explicitly state that it is unavailable. " +
+                        "Respond ONLY with valid JSON with keys: \"summary\", \"likelyCause\", \"recommendedAction\", \"urgency\".\n\n" +
                         "DATA:\n" +
                         "- PHC: %s (District: %s, State: %s)\n" +
                         "- Medicine: %s\n" +
@@ -112,7 +113,8 @@ public class GeminiService {
 
         String prompt = String.format(Locale.US,
                 "SYSTEM: You are a state health supply chain director. Provide exactly 5 bullet points for a daily situation briefing for %s. " +
-                        "Language: %s. Ground ONLY in these numbers. Return JSON array of 5 strings: [\"...\", \"...\", ...].\n\n" +
+                        "Language: %s. Ground ONLY in these numbers. Use only the supplied telemetry. Do not invent numerical facts. " +
+                        "If information is unavailable, explicitly state that it is unavailable. Return JSON array of 5 strings: [\"...\", \"...\", ...].\n\n" +
                         "NUMBERS:\n" +
                         "- State: %s\n" +
                         "- Total PHCs: %d\n" +
@@ -176,6 +178,7 @@ public class GeminiService {
 
         String prompt = String.format(Locale.US,
                 "SYSTEM: You are SahaMatrix AI Q&A assistant. Answer the user's question using ONLY the data in the snapshot below. " +
+                        "Use only the supplied telemetry. Do not invent numerical facts. If information is unavailable, explicitly state that it is unavailable. " +
                         "If the answer cannot be determined from the snapshot, reply exactly: \"Not in the data.\". " +
                         "Answer in %s. Be concise (2-3 sentences max).\n\n" +
                         "SNAPSHOT:\n%s\n\n" +

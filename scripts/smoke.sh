@@ -40,6 +40,9 @@ test_endpoint() {
 # 1. Health Check
 test_endpoint "GET" "/api/health" "" "UP"
 
+# Baseline Reset
+test_endpoint "POST" "/api/simulate/reset" "" "true"
+
 # 2. Executive Summary
 test_endpoint "GET" "/api/summary" "" "simDate"
 
