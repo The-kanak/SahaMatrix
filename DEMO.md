@@ -6,12 +6,16 @@
 
 ---
 
-### Step 1: Map Overview & Operational Telemetry (30 Seconds)
+### Step 1: Map Overview, Personas & Operational Telemetry (30 Seconds)
 1. Open the SahaMatrix dashboard at `http://localhost:5173`.
-2. Highlight the **KPI Row**:
+2. Highlight the **Role Switcher** in the header:
+   - **State Health Secretary:** Macro statewide visibility, inter-district rebalancing, and counterfactual policy impact.
+   - **District CMO:** District-level clusters, emergency outbreak triggers, and local buffer management.
+   - **PHC Pharmacist:** Clinic dispensary view, daily paper stock register digitization, and local 14-day forecasts.
+3. Highlight the **KPI Row**:
    - **72 PHCs** monitored across 3 critical states: Maharashtra (MH), Uttar Pradesh (UP), and Tamil Nadu (TN).
-   - Live supply status with colored CircleMarkers: **Red (Critical <3d)**, **Orange (High <7d)**, **Amber (Medium)**, and **Green (Healthy)**.
-3. Switch the state filter between **All States**, **Maharashtra**, **Uttar Pradesh**, and **Tamil Nadu** to demonstrate dynamic map boundary auto-fitting.
+   - Live supply status with colored CircleMarkers: **Red (Critical <3d)**, **Orange (High <7d)**, and **Green (Healthy)**.
+4. Switch the state filter between **All States**, **Maharashtra**, **Uttar Pradesh**, and **Tamil Nadu** to demonstrate dynamic map boundary auto-fitting.
 
 ---
 
