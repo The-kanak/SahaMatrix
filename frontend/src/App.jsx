@@ -593,10 +593,48 @@ function SahaMatrixDashboard() {
   );
 }
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('SahaMatrix ErrorBoundary caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '40px', fontFamily: 'sans-serif', maxWidth: '640px', margin: '40px auto', backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #fecaca', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
+          <h2 style={{ color: '#dc2626', margin: '0 0 10px 0' }}>SahaMatrix Display Error</h2>
+          <p style={{ fontSize: '13px', color: '#64748b' }}>An unexpected error occurred while rendering the dashboard:</p>
+          <pre style={{ backgroundColor: '#fef2f2', padding: '12px', borderRadius: '6px', fontSize: '12px', color: '#991b1b', overflowX: 'auto', whiteSpace: 'pre-wrap' }}>
+            {this.state.error?.stack || this.state.error?.toString()}
+          </pre>
+          <button
+            onClick={() => window.location.reload()}
+            style={{ marginTop: '16px', backgroundColor: '#0284c7', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            Reload Dashboard
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
   return (
-    <LanguageProvider>
-      <SahaMatrixDashboard />
-    </LanguageProvider>
+    <ErrorBoundary>
+      <LanguageProvider>
+        <SahaMatrixDashboard />
+      </LanguageProvider>
+    </ErrorBoundary>
   );
 }

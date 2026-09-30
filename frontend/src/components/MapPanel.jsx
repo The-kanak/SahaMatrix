@@ -180,7 +180,7 @@ export const MapPanel = ({
           <MapBoundsController stateFilter={selectedState} selectedPhc={selectedPhc} />
 
           {/* Render PHC CircleMarkers */}
-          {(phcs || []).map((phc) => {
+          {(phcs || []).filter((p) => p && typeof p.lat === 'number' && typeof p.lng === 'number').map((phc) => {
             const isSelected = phc.id === selectedPhcId;
             return (
               <CircleMarker
@@ -211,7 +211,10 @@ export const MapPanel = ({
           })}
 
           {/* Active Transfer Polyline */}
-          {activeTransfer && activeTransfer.from && activeTransfer.to && (
+          {activeTransfer &&
+           activeTransfer.from && activeTransfer.to &&
+           typeof activeTransfer.from.lat === 'number' && typeof activeTransfer.from.lng === 'number' &&
+           typeof activeTransfer.to.lat === 'number' && typeof activeTransfer.to.lng === 'number' && (
             <Polyline
               positions={[
                 [activeTransfer.from.lat, activeTransfer.from.lng],

@@ -162,7 +162,7 @@ export const RedistributionPanel = ({
                   {rec.medicine}: {Math.round(rec.quantity)} units
                 </span>
                 <span style={{ color: '#64748b' }}>
-                  Distance: <strong>{rec.distanceKm.toFixed(1)} km</strong>
+                  Distance: <strong>{typeof rec.distanceKm === 'number' ? rec.distanceKm.toFixed(1) : '—'} km</strong>
                 </span>
               </div>
 

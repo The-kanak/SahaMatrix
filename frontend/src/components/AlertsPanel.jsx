@@ -100,16 +100,16 @@ export const AlertsPanel = ({
                   </span>
                 </div>
                 <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-                  {a.state} • {a.district} • Current Stock: {Math.round(a.currentStock)} units
+                  {a.state} • {a.district} {a.currentStock != null ? `• Stock: ${Math.round(a.currentStock)} units` : ''}
                 </div>
               </div>
 
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '13px', fontWeight: '800', color: isCritical ? '#dc2626' : '#d97706' }}>
-                  {a.daysOfStock.toFixed(1)} {t('daysLeft')}
+                  {a.daysOfStock != null ? a.daysOfStock.toFixed(1) : '0.0'} {t('daysLeft')}
                 </div>
                 <div style={{ fontSize: '10px', color: '#94a3b8' }}>
-                  Avg Demand: {a.avgDailyDemand.toFixed(1)}/day
+                  {a.avgDailyDemand != null ? `Avg: ${a.avgDailyDemand.toFixed(1)}/day` : (a.message || '')}
                 </div>
               </div>
             </div>

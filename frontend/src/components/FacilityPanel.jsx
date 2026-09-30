@@ -73,7 +73,7 @@ export const FacilityPanel = ({
               </span>
             </div>
             <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
-              ID: <code>{selectedPhc.id}</code> • Lat: {selectedPhc.lat.toFixed(4)}, Lng: {selectedPhc.lng.toFixed(4)}
+              ID: <code>{selectedPhc.id}</code> • Lat: {typeof selectedPhc.lat === 'number' ? selectedPhc.lat.toFixed(4) : '—'}, Lng: {typeof selectedPhc.lng === 'number' ? selectedPhc.lng.toFixed(4) : '—'}
             </div>
           </div>
 
