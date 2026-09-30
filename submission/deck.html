@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SahaMatrix – Hackathon Deck</title>
+<style>
+  /* ===== RESET & FONTS ===== */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+
+  :root{
+    --navy:#0a0f1e;
+    --navy2:#111827;
+    --blue:#0284c7;
+    --blue2:#38bdf8;
+    --teal:#06b6d4;
+    --green:#10b981;
+    --red:#ef4444;
+    --orange:#f59e0b;
+    --slate:#64748b;
+    --slate2:#94a3b8;
+    --white:#f8fafc;
+    --card:#1a2540;
+    --border:#1e3a5f;
+  }
+
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:#0a0f1e;
+    color:#f8fafc;
+    font-size:13px;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+
+  /* ===== SLIDE SYSTEM ===== */
+  .slide{
+    width:297mm;
+    min-height:210mm;
+    max-height:210mm;
+    overflow:hidden;
+    background:var(--navy);
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    page-break-after:always;
+    break-after:page;
+  }
+
+  /* Accent bar at top of every slide */
+  .slide::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:3px;
+    background:linear-gradient(90deg,var(--blue) 0%,var(--teal) 50%,var(--green) 100%);
+  }
+
+  /* ===== SHARED ATOMS ===== */
+  .badge{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:3px 9px;border-radius:20px;
+    font-size:10px;font-weight:700;letter-spacing:.04em;
+  }
+  .badge-blue{background:rgba(2,132,199,.18);color:var(--blue2);border:1px solid rgba(2,132,199,.35);}
+  .badge-green{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3);}
+  .badge-teal{background:rgba(6,182,212,.15);color:var(--teal);border:1px solid rgba(6,182,212,.3);}
+  .badge-orange{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3);}
+  .badge-red{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+
+  .pill{
+    display:inline-block;padding:3px 10px;border-radius:12px;
+    font-size:10px;font-weight:600;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+  }
+
+  .tag{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue2);}
+  .h1{font-size:38px;font-weight:900;line-height:1.1;letter-spacing:-.03em;}
+  .h2{font-size:24px;font-weight:800;line-height:1.15;letter-spacing:-.02em;}
+  .h3{font-size:17px;font-weight:700;line-height:1.2;}
+  .h4{font-size:13px;font-weight:700;line-height:1.3;}
+  .body{font-size:11.5px;line-height:1.55;color:#cbd5e1;}
+  .muted{color:var(--slate2);font-size:10.5px;}
+
+  .gradient-text{
+    background:linear-gradient(135deg,#38bdf8 0%,#06b6d4 50%,#10b981 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  }
+
+  .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .dot-red{background:#ef4444;}
+  .dot-orange{background:#f59e0b;}
+  .dot-green{background:#10b981;}
+  .dot-blue{background:#0284c7;}
+
+  /* ===== SLIDE HEADER (shared top bar) ===== */
+  .slide-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 28px 0 28px;
+    flex-shrink:0;
+  }
+  .logo-sm{
+    font-size:13px;font-weight:800;color:#f8fafc;letter-spacing:-.01em;
+    display:flex;align-items:center;gap:6px;
+  }
+  .logo-sm span{color:var(--blue2);}
+  .slide-num{font-size:10px;color:var(--slate);font-weight:600;}
+
+  /* ===== SLIDE BODY ===== */
+  .slide-body{
+    flex:1;
+    padding:10px 28px 16px 28px;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ===== DIVIDER ===== */
+  .hr{
+    border:none;
+    height:1px;
+    background:linear-gradient(90deg,transparent,var(--border),transparent);
+    margin:8px 0;
+  }
+
+  /* ===== GRID HELPERS ===== */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
+  .col{display:flex;flex-direction:column;gap:8px;}
+  .row{display:flex;align-items:center;gap:8px;}
+
+  /* ===== FLOW DIAGRAM ===== */
+  .flow{display:flex;align-items:center;gap:0;}
+  .flow-box{
+    background:var(--card);border:1px solid var(--border);border-radius:8px;
+    padding:8px 12px;text-align:center;font-size:10.5px;font-weight:600;
+    flex:1;line-height:1.3;
+  }
+  .flow-arrow{
+    color:var(--blue2);font-size:16px;font-weight:300;margin:0 -1px;flex-shrink:0;
+    width:22px;text-align:center;
+  }
+
+  /* ===== STAT BOX ===== */
+  .stat-box{
+    background:var(--card);border:1px solid var(--border);border-radius:10px;
+    padding:12px 14px;text-align:center;
+  }
+  .stat-box .num{font-size:28px;font-weight:900;letter-spacing:-.03em;}
+  .stat-box .lbl{font-size:9.5px;color:var(--slate2);font-weight:600;margin-top:2px;}
+
+  /* ===== GEMINI BOX ===== */
+  .gemini-box{
+    background:linear-gradient(135deg,rgba(2,132,199,.12) 0%,rgba(6,182,212,.08) 100%);
+    border:1px solid rgba(56,189,248,.25);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+
+  /* ===== ARCH DIAGRAM ===== */
+  .arch-layer{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:8px;padding:9px 14px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .arch-icon{
+    width:36px;height:36px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;flex-shrink:0;
+  }
+  .arch-arrow{
+    text-align:center;color:var(--slate);font-size:16px;margin:3px 0;
+  }
+
+  /* ===== TICK LIST ===== */
+  .tick{display:flex;align-items:flex-start;gap:7px;margin-bottom:6px;}
+  .tick-icon{color:var(--green);font-size:12px;margin-top:1px;flex-shrink:0;}
+  .tick-text{font-size:11px;color:#cbd5e1;line-height:1.45;}
+
+  /* ===== FUTURE BADGE ===== */
+  .future-item{
+    display:flex;align-items:flex-start;gap:8px;
+    background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.2);
+    border-radius:8px;padding:8px 11px;
+  }
+  .future-icon{font-size:14px;flex-shrink:0;}
+  .future-text{font-size:10.5px;color:#c7d2fe;line-height:1.4;}
+
+  /* ===== STEP CARD ===== */
+  .step{
+    display:flex;align-items:flex-start;gap:10px;
+    background:var(--card);border:1px solid var(--border);
+    border-radius:8px;padding:9px 12px;
+  }
+  .step-num{
+    background:linear-gradient(135deg,var(--blue),var(--teal));
+    color:#fff;font-size:10px;font-weight:800;
+    width:20px;height:20px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;margin-top:1px;
+  }
+
+  /* ===== PRINT ===== */
+  @media print{
+    html,body{margin:0;padding:0;}
+    .slide{page-break-after:always;break-after:page;}
+    .slide:last-child{page-break-after:avoid;break-after:avoid;}
+  }
+
+  @page{
+    size:A4 landscape;
+    margin:0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 1 — TITLE
+══════════════════════════════════════════ -->
+<div class="slide" style="justify-content:center;align-items:center;background:radial-gradient(ellipse at 30% 50%,rgba(2,132,199,.13) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(6,182,212,.09) 0%,transparent 50%),var(--navy);">
+  <div style="text-align:center;padding:0 40px;max-width:680px;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px;">
+      <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#0284c7,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:26px;">🏥</div>
+      <div style="font-size:42px;font-weight:900;letter-spacing:-.04em;">Saha<span style="color:#38bdf8;">Matrix</span></div>
+    </div>
+    <div class="h2" style="color:#94a3b8;font-weight:400;margin-bottom:12px;font-size:20px;">&ldquo;Together, No Stock-Out.&rdquo;</div>
+    <div style="font-size:15px;color:#cbd5e1;line-height:1.5;max-width:560px;margin:0 auto 24px auto;">
+      AI-powered healthcare supply intelligence for India's Primary Health Centres
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;">
+      <span class="badge badge-blue">🤖 Google Gemini AI</span>
+      <span class="badge badge-green">🏥 72 Demo PHCs</span>
+      <span class="badge badge-teal">🗺️ 3 States</span>
+      <span class="badge badge-orange">⚗️ Synthetic Demo Data</span>
+    </div>
+    <div style="margin-top:28px;font-size:10px;color:#475569;border-top:1px solid #1e3a5f;padding-top:14px;">
+      Build with AI: Code for Communities — Second Edition &nbsp;|&nbsp; Hack2Skill &nbsp;|&nbsp; Team SahaMatrix
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 2 — PROBLEM
+══════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="logo-sm">Saha<span>Matrix</span></div>
+    <div class="slide-num">02 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="tag">The Problem</div>
+    <div class="h2 gradient-text" style="margin:4px 0 12px;">India's PHC Supply Chain is Broken</div>
+    <div class="grid2" style="gap:14px;flex:1;">
+      <div class="col">
+        <div class="card" style="border-left:3px solid #ef4444;flex:1;">
+          <div style="font-size:18px;margin-bottom:6px;">💊</div>
+          <div class="h4">Medicine Stock-Outs</div>
+          <div class="body" style="margin-top:4px;">Life-saving drugs — insulin, ORS, antimalarials — run out during seasonal surges while nearby PHCs hold expiring surplus.</div>
+        </div>
+        <div class="card" style="border-left:3px solid #f59e0b;flex:1;">
+          <div style="font-size:18px;margin-bottom:6px;">📋</div>
+          <div class="h4">Paper-Based Inventory</div>
+          <div class="body" style="margin-top:4px;">Rural PHCs still rely on handwritten stock registers. Manual reporting creates days of lag before critical shortages surface.</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card" style="border-left:3px solid #8b5cf6;flex:1;">
+          <div style="font-size:18px;margin-bottom:6px;">🔍</div>
+          <div class="h4">Delayed Detection</div>
+          <div class="body" style="margin-top:4px;">No real-time cross-facility visibility. By the time a stock-out is reported, patients are already denied medicines.</div>
+        </div>
+        <div class="card" style="border-left:3px solid #06b6d4;flex:1;">
+          <div style="font-size:18px;margin-bottom:6px;">🚚</div>
+          <div class="h4">No Peer Redistribution</div>
+          <div class="body" style="margin-top:4px;">No mechanism to identify surplus at adjacent facilities and coordinate emergency transfers without waiting for central directives.</div>
+        </div>
+      </div>
+    </div>
+    <div class="hr" style="margin-top:10px;"></div>
+    <div style="text-align:center;font-size:11px;color:#64748b;">India has ~30,000 Primary Health Centres serving over 900 million rural citizens — all without real-time supply intelligence.</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 3 — SOLUTION
+══════════════════════════════════════════ -->
+<div class="slide" style="background:radial-gradient(ellipse at 80% 80%,rgba(16,185,129,.08) 0%,transparent 55%),var(--navy);">
+  <div class="slide-header">
+    <div class="logo-sm">Saha<span>Matrix</span></div>
+    <div class="slide-num">03 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="tag">The Solution</div>
+    <div class="h2 gradient-text" style="margin:4px 0 4px;">SahaMatrix in One Diagram</div>
+    <div class="muted" style="margin-bottom:14px;">Data → Prediction → AI → Decision → Action → Impact</div>
+
+    <!-- Flow diagram -->
+    <div class="flow" style="margin-bottom:16px;">
+      <div class="flow-box" style="border-color:#1e3a5f;">
+        <div style="font-size:17px;margin-bottom:4px;">📊</div>
+        <div style="font-size:10px;font-weight:700;color:#38bdf8;">PHC Data</div>
+        <div class="muted" style="font-size:9px;margin-top:2px;">Stock levels<br/>Consumption<br/>(synthetic demo)</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box" style="border-color:#1e3a5f;">
+        <div style="font-size:17px;margin-bottom:4px;">📈</div>
+        <div style="font-size:10px;font-weight:700;color:#a78bfa;">Forecasting</div>
+        <div class="muted" style="font-size:9px;margin-top:2px;">Ridge regression<br/>14-day demand<br/>curve</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box" style="background:linear-gradient(135deg,rgba(2,132,199,.15),rgba(6,182,212,.1));border-color:rgba(56,189,248,.3);">
+        <div style="font-size:17px;margin-bottom:4px;">🤖</div>
+        <div style="font-size:10px;font-weight:700;color:#38bdf8;">Gemini AI</div>
+        <div class="muted" style="font-size:9px;margin-top:2px;">Alert explanation<br/>Situation brief<br/>Q&amp;A / OCR</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box" style="border-color:#1e3a5f;">
+        <div style="font-size:17px;margin-bottom:4px;">⚠️</div>
+        <div style="font-size:10px;font-weight:700;color:#fbbf24;">Stock-Out Alert</div>
+        <div class="muted" style="font-size:9px;margin-top:2px;">Ranked queue<br/>Critical &lt;3 days<br/>Deficit &lt;7 days</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box" style="border-color:#1e3a5f;">
+        <div style="font-size:17px;margin-bottom:4px;">🔄</div>
+        <div style="font-size:10px;font-weight:700;color:#34d399;">Redistribution</div>
+        <div class="muted" style="font-size:9px;margin-top:2px;">Surplus → Deficit<br/>Haversine routing<br/>1-click apply</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box" style="border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.07);">
+        <div style="font-size:17px;margin-bottom:4px;">✅</div>
+        <div style="font-size:10px;font-weight:700;color:#34d399;">Stock Updated</div>
+        <div class="muted" style="font-size:9px;margin-top:2px;">Dashboard<br/>refreshes<br/>live</div>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div class="gemini-box">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;">
+          <div style="font-size:15px;">🗺️</div>
+          <div class="h4" style="font-size:12px;">GIS Network Map</div>
+        </div>
+        <div class="body" style="font-size:10.5px;">Interactive Leaflet map. Color-coded PHC risk markers. Real-time transfer polylines between facilities.</div>
+      </div>
+      <div class="gemini-box">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;">
+          <div style="font-size:15px;">🌐</div>
+          <div class="h4" style="font-size:12px;">Multilingual UI</div>
+        </div>
+        <div class="body" style="font-size:10.5px;">Full translations in English, Hindi, Marathi, and Tamil. Voice dictation + text-to-speech read-aloud.</div>
+      </div>
+      <div class="gemini-box">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;">
+          <div style="font-size:15px;">👤</div>
+          <div class="h4" style="font-size:12px;">3 Persona Roles</div>
+        </div>
+        <div class="body" style="font-size:10.5px;">Health Secretary, District CMO, PHC Pharmacist — each with scoped dashboards and role-appropriate actions.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 4 — HOW IT WORKS
+══════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="logo-sm">Saha<span>Matrix</span></div>
+    <div class="slide-num">04 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="tag">How It Works</div>
+    <div class="h2 gradient-text" style="margin:4px 0 12px;">End-to-End Operational Flow</div>
+    <div class="grid2" style="flex:1;gap:14px;">
+      <div class="col" style="gap:9px;">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="h4">PHC Stock Data Ingested</div>
+            <div class="body" style="font-size:10.5px;margin-top:2px;">72 simulated PHCs across Maharashtra, Uttar Pradesh, Tamil Nadu with synthetic daily consumption data. Architecture supports CSV upload and paper register OCR for future real-data onboarding.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="h4">14-Day Demand Forecast</div>
+            <div class="body" style="font-size:10.5px;margin-top:2px;">Per-facility Ridge regression model calculates daily consumption trend. Forecasts days-of-stock remaining per medicine. Recharts visualization displayed per PHC.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="h4">Stock-Out Alerts Ranked</div>
+            <div class="body" style="font-size:10.5px;margin-top:2px;">Critical (&lt;3 days) and Deficit (&lt;7 days) alerts surfaced in ranked queue. Severity badges, daily consumption rate, and stock runway shown per facility.</div>
+          </div>
+        </div>
+      </div>
+      <div class="col" style="gap:9px;">
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <div class="h4">Gemini AI Explains the Alert</div>
+            <div class="body" style="font-size:10.5px;margin-top:2px;">One click calls Gemini Flash with grounded telemetry context. Returns: root cause, stock runway analysis, and recommended intervention. Explicitly labeled "Powered by Google Gemini".</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div>
+            <div class="h4">AI Redistribution Recommended</div>
+            <div class="body" style="font-size:10.5px;margin-top:2px;">Greedy Haversine proximity algorithm identifies surplus PHC nearest to deficit PHC. Intra-state transfers prioritized; inter-state orchestrated when necessary. Transfer cards shown in Transfers tab.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">6</div>
+          <div>
+            <div class="h4">Transfer Applied, Dashboard Updates</div>
+            <div class="body" style="font-size:10.5px;margin-top:2px;">Single or batch apply triggers REST API call. MySQL stock records updated. Map transfer polylines animate. KPI "Stock-outs Prevented" counter increments live.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 5 — KEY FEATURES
+══════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="logo-sm">Saha<span>Matrix</span></div>
+    <div class="slide-num">05 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="tag">Platform Capabilities</div>
+    <div class="h2 gradient-text" style="margin:4px 0 12px;">Key Features</div>
+    <div class="grid4" style="flex:1;">
+      <!-- Column 1 -->
+      <div class="col" style="gap:8px;">
+        <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Intelligence</div>
+        <div class="card" style="flex:1;">
+          <div style="font-size:18px;margin-bottom:6px;">📊</div>
+          <div class="h4" style="font-size:11.5px;">Stock-Out Prediction</div>
+          <div class="body" style="font-size:10px;margin-top:3px;">Ridge regression forecasts 14-day demand curves per PHC per medicine. Days-of-stock runway computed continuously.</div>
+        </div>
+        <div class="card" style="flex:1;">
+          <div style="font-size:18px;margin-bottom:6px;">🔮</div>
+          <div class="h4" style="font-size:11.5px;">Fed. Learning Simulation</div>
+          <div class="body" style="font-size:10px;margin-top:3px;">FedAvg simulation across 3 state nodes. MAE bar charts and round-loss curve. Privacy: only model weights aggregated, not raw data.</div>
+        </div>
+      </div>
+      <!-- Column 2 -->
+      <div class="col" style="gap:8px;">
+        <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Gemini AI</div>
+        <div class="card" style="flex:1;border-color:rgba(56,189,248,.2);">
+          <div style="font-size:18px;margin-bottom:6px;">💡</div>
+          <div class="h4" style="font-size:11.5px;">Grounded Alert Insights</div>
+          <div class="body" style="font-size:10px;margin-top:3px;">Gemini Flash explains each stockout alert with root cause, clinical urgency, and recommended action — grounded in live telemetry only.</div>
+        </div>
+        <div class="card" style="flex:1;border-color:rgba(56,189,248,.2);">
+          <div style="font-size:18px;margin-bottom:6px;">📋</div>
+          <div class="h4" style="font-size:11.5px;">Situation Briefings</div>
+          <div class="body" style="font-size:10px;margin-top:3px;">5-bullet executive brief for state health directors, synthesized by Gemini from live supply data. One-click copy for WhatsApp or memos.</div>
+        </div>
+      </div>
+      <!-- Column 3 -->
+      <div class="col" style="gap:8px;">
+        <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Interaction</div>
+        <div class="card" style="flex:1;">
+          <div style="font-size:18px;margin-bottom:6px;">🎙️</div>
+          <div class="h4" style="font-size:11.5px;">Voice AI Q&amp;A</div>
+          <div class="body" style="font-size:10px;margin-top:3px;">Web Speech API microphone dictation. Ask natural-language questions about active alerts. Gemini answers; speech synthesis reads aloud in selected language.</div>
+        </div>
+        <div class="card" style="flex:1;">
+          <div style="font-size:18px;margin-bottom:6px;">📷</div>
+          <div class="h4" style="font-size:11.5px;">Register OCR</div>
+          <div class="body" style="font-size:10px;margin-top:3px;">Gemini multimodal vision extracts medicine names and quantities from photos of handwritten paper stock registers. Synonym normalization (PCM → Paracetamol).</div>
+        </div>
+      </div>
+      <!-- Column 4 -->
+      <div class="col" style="gap:8px;">
+        <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Operations</div>
+        <div class="card" style="flex:1;">
+          <div style="font-size:18px;margin-bottom:6px;">🔄</div>
+          <div class="h4" style="font-size:11.5px;">Peer Redistribution</div>
+          <div class="body" style="font-size:10px;margin-top:3px;">Greedy Haversine algorithm identifies nearest surplus PHC. Single and batch apply transfers. Map polylines animate the route. MySQL stock updated.</div>
+        </div>
+        <div class="card" style="flex:1;">
+          <div style="font-size:18px;margin-bottom:6px;">🌐</div>
+          <div class="h4" style="font-size:11.5px;">Multilingual UI</div>
+          <div class="body" style="font-size:10px;margin-top:3px;">English, Hindi, Marathi, Tamil runtime translation via LanguageContext. All UI labels, alerts, and AI responses in selected language.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 6 — GOOGLE AI INTEGRATION
+══════════════════════════════════════════ -->
+<div class="slide" style="background:radial-gradient(ellipse at 20% 30%,rgba(2,132,199,.1) 0%,transparent 55%),var(--navy);">
+  <div class="slide-header">
+    <div class="logo-sm">Saha<span>Matrix</span></div>
+    <div class="slide-num">06 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="tag">Google AI</div>
+    <div class="h2 gradient-text" style="margin:4px 0 4px;">Gemini Flash Integration</div>
+    <div class="muted" style="margin-bottom:12px;">Four distinct Gemini AI endpoints — all strictly grounded in live supply telemetry, zero patient identifiers</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;">
+
+      <div class="gemini-box">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">
+          <div style="background:rgba(2,132,199,.2);width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">💡</div>
+          <div>
+            <div class="h4" style="font-size:12px;">Clinical Alert Explanation</div>
+            <div style="font-size:9px;color:#64748b;font-family:monospace;">POST /api/ai/explain-alert</div>
+          </div>
+        </div>
+        <div class="tick"><span class="tick-icon">✓</span><div class="tick-text">Grounded root-cause analysis for each stock-out using live PHC telemetry</div></div>
+        <div class="tick"><span class="tick-icon">✓</span><div class="tick-text">Clinical urgency scoring and recommended intervention steps</div></div>
+        <div class="tick"><span class="tick-icon">✓</span><div class="tick-text">Responds in the user's selected language (EN/HI/MR/TA)</div></div>
+        <div class="tick"><span class="tick-icon">✓</span><div class="tick-text">"Powered by Google Gemini" badge vs "Fallback mode" label shown transparently</div></div>
+      </div>
+
+      <div class="gemini-box">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">
+          <div style="background:rgba(6,182,212,.2);width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">📋</div>
+          <div>
+            <div class="h4" style="font-size:12px;">Executive Situation Brief</div>
+            <div style="font-size:9px;color:#64748b;font-family:monospace;">POST /api/ai/situation-brief</div>
+          </div>
+        </div>
+        <div class="tick"><span class="tick-icon">✓</span><div class="tick-text">5-bullet summary for state health leadership synthesized from supply metrics</div></div>
+        <div class="tick"><span class="tick-icon">✓</span><div class="tick-text">Per-state scoping (MH / UP / TN) with per-state drug risk profiling</div></div>
+        <div class="tick"><span class="tick-icon">✓</span><div class="tick-text">One-click copy for WhatsApp or district officer memo distribution</div></div>
+        <div class="tick"><span class="tick-icon">✓</span><div class="tick-text">Text-to-speech read-aloud via Web Speech API</div></div>
+      </div>
+
+      <div class="gemini-box">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">
+          <div style="background:rgba(16,185,129,.2);width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">🎙️</div>
+          <div>
+            <div class="h4" style="font-size:12px;">Voice-First Q&amp;A Assistant</div>
+            <div style="font-size:9px;color:#64748b;font-family:monospace;">POST /api/ai/ask</div>
+          </div>
+        </div>
+        <div class="tick"><span class="tick-icon">✓</span><div class="tick-text">Natural-language questions over active alerts — spoken or typed</div></div>
+        <div class="tick"><span class="tick-icon">✓</span><div class="tick-text">Web Speech API microphone dictation with browser-compatibility fallback</div></div>
+        <div class="tick"><span class="tick-icon">✓</span><div class="tick-text">Grounded answers: "Use only the supplied telemetry. Do not invent facts."</div></div>
+      </div>
+
+      <div class="gemini-box">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">
+          <div style="background:rgba(245,158,11,.2);width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">📷</div>
+          <div>
+            <div class="h4" style="font-size:12px;">Paper Register OCR</div>
+            <div style="font-size:9px;color:#64748b;font-family:monospace;">POST /api/ai/ingest-register</div>
+          </div>
+        </div>
+        <div class="tick"><span class="tick-icon">✓</span><div class="tick-text">Gemini multimodal vision reads photos of handwritten/printed stock registers</div></div>
+        <div class="tick"><span class="tick-icon">✓</span><div class="tick-text">Synonym normalization: "PCM" → Paracetamol, "ACT" → Artemisinin ACT</div></div>
+        <div class="tick"><span class="tick-icon">✓</span><div class="tick-text">Confidence scoring and editable review table before committing to stock</div></div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:9px;padding:6px 12px;background:rgba(15,23,42,.5);border-radius:6px;border:1px solid #1e3a5f;display:flex;align-items:center;gap:8px;">
+      <span style="font-size:12px;">🔐</span>
+      <div style="font-size:10px;color:#94a3b8;">Gemini API key stored securely on the Spring Boot backend only — never exposed to the browser or frontend code.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 7 — DEMO WORKFLOW
+══════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="logo-sm">Saha<span>Matrix</span></div>
+    <div class="slide-num">07 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="tag">Live Demo Story</div>
+    <div class="h2 gradient-text" style="margin:4px 0 12px;">3-Minute End-to-End Walkthrough</div>
+
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:0;margin-bottom:14px;">
+      <!-- Step boxes -->
+      <div style="text-align:center;padding:6px 4px;">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#ef4444,#f97316);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;margin:0 auto 5px;">⚡</div>
+        <div style="font-size:9px;font-weight:700;color:#f87171;">1. Trigger</div>
+        <div style="font-size:9px;color:#64748b;margin-top:2px;line-height:1.3;">Outbreak surge UP / Paracetamol / 3×</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;color:#1e3a5f;font-size:18px;padding-bottom:12px;">→</div>
+      <div style="text-align:center;padding:6px 4px;">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#f59e0b,#fbbf24);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;margin:0 auto 5px;">⚠️</div>
+        <div style="font-size:9px;font-weight:700;color:#fbbf24;">2. Alerts</div>
+        <div style="font-size:9px;color:#64748b;margin-top:2px;line-height:1.3;">Critical alerts spike, ranked queue updates</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;color:#1e3a5f;font-size:18px;padding-bottom:12px;">→</div>
+      <div style="text-align:center;padding:6px 4px;">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#0284c7,#38bdf8);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;margin:0 auto 5px;">🤖</div>
+        <div style="font-size:9px;font-weight:700;color:#38bdf8;">3. Gemini</div>
+        <div style="font-size:9px;color:#64748b;margin-top:2px;line-height:1.3;">AI explains alert in Hindi, labels root cause</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;color:#1e3a5f;font-size:18px;padding-bottom:12px;">→</div>
+      <div style="text-align:center;padding:6px 4px;">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#10b981,#34d399);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;margin:0 auto 5px;">✅</div>
+        <div style="font-size:9px;font-weight:700;color:#34d399;">4. Action</div>
+        <div style="font-size:9px;color:#64748b;margin-top:2px;line-height:1.3;">Transfers applied, KPIs update, alerts clear</div>
+      </div>
+    </div>
+
+    <div class="grid2" style="gap:12px;flex:1;">
+      <div class="col" style="gap:8px;">
+        <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;">Demo Steps A–D</div>
+        <div class="card" style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+            <div class="dot dot-red"></div>
+            <div class="h4" style="font-size:11px;">A — Map Overview &amp; Personas (30s)</div>
+          </div>
+          <div class="body" style="font-size:10px;">Open dashboard → highlight Role Switcher (Secretary / CMO / Pharmacist) → KPI row shows 72 PHCs across 3 states → map CircleMarkers color-coded by risk.</div>
+        </div>
+        <div class="card" style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+            <div class="dot dot-orange"></div>
+            <div class="h4" style="font-size:11px;">B — OCR Register Upload (30s)</div>
+          </div>
+          <div class="body" style="font-size:10px;">Select PHC → "Update Stock from Photo" → upload sample register image → Gemini vision extracts line items → confirm → stock table updates.</div>
+        </div>
+        <div class="card" style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+            <div class="dot dot-blue"></div>
+            <div class="h4" style="font-size:11px;">C — Outbreak Surge + Advance 3 Days (25s)</div>
+          </div>
+          <div class="body" style="font-size:10px;">Trigger Outbreak (UP, Paracetamol, 3×) → Advance 3 Days → KPIs dynamically spike → critical alerts appear in ranked Alerts tab.</div>
+        </div>
+      </div>
+      <div class="col" style="gap:8px;">
+        <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;">Demo Steps E–H</div>
+        <div class="card" style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+            <div class="dot dot-blue"></div>
+            <div class="h4" style="font-size:11px;">D — Gemini Alert Insight in Hindi (25s)</div>
+          </div>
+          <div class="body" style="font-size:10px;">Switch UI to Hindi → click top critical alert → "Get AI Insight" → Gemini returns grounded explanation with root cause + recommended action.</div>
+        </div>
+        <div class="card" style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+            <div class="dot dot-green"></div>
+            <div class="h4" style="font-size:11px;">E — Voice Q&amp;A + Situation Brief (35s)</div>
+          </div>
+          <div class="body" style="font-size:10px;">Ask AI tab → microphone query or chip → Gemini answers → Read Aloud. Switch to Brief tab → 5-bullet executive summary → Copy for WhatsApp.</div>
+        </div>
+        <div class="card" style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+            <div class="dot dot-green"></div>
+            <div class="h4" style="font-size:11px;">F — Peer Redistribution + Reset (35s)</div>
+          </div>
+          <div class="body" style="font-size:10px;">Transfers tab → hover card to see map polyline → Apply All → deficit alerts drop → KPI "Stock-outs Prevented" increases → Reset Demo restores baseline.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 8 — TECHNOLOGY ARCHITECTURE
+══════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="logo-sm">Saha<span>Matrix</span></div>
+    <div class="slide-num">08 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="tag">Technology</div>
+    <div class="h2 gradient-text" style="margin:4px 0 12px;">Architecture Stack</div>
+    <div class="grid2" style="flex:1;gap:16px;">
+
+      <!-- Left: Stack diagram -->
+      <div class="col" style="gap:6px;">
+        <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Layered Architecture</div>
+
+        <div class="arch-layer" style="border-color:rgba(56,189,248,.3);">
+          <div class="arch-icon" style="background:rgba(2,132,199,.15);">⚛️</div>
+          <div>
+            <div class="h4" style="font-size:11.5px;color:#38bdf8;">React 18 + Vite Frontend</div>
+            <div class="body" style="font-size:10px;">14 modular JSX components · Leaflet map · Recharts · Lucide icons · LanguageContext i18n · Web Speech API</div>
+          </div>
+        </div>
+        <div class="arch-arrow">↕ REST API (Vite Proxy :5173 → :8081)</div>
+        <div class="arch-layer" style="border-color:rgba(16,185,129,.3);">
+          <div class="arch-icon" style="background:rgba(16,185,129,.15);">☕</div>
+          <div>
+            <div class="h4" style="font-size:11.5px;color:#34d399;">Spring Boot 3.2.5 Backend</div>
+            <div class="body" style="font-size:10px;">Java 17 · REST controllers · Forecast, Redistribution, Federated Learning, Impact services · Java HttpClient → Gemini API</div>
+          </div>
+        </div>
+        <div class="arch-arrow">↕ JPA / Hibernate</div>
+        <div class="arch-layer" style="border-color:rgba(245,158,11,.3);">
+          <div class="arch-icon" style="background:rgba(245,158,11,.15);">🗄️</div>
+          <div>
+            <div class="h4" style="font-size:11.5px;color:#fbbf24;">MySQL 8.0</div>
+            <div class="body" style="font-size:10px;">Entities: states, districts, phcs, medicines, phc_stock, daily_consumption, transfer_audit · JPA persistence + in-memory fallback</div>
+          </div>
+        </div>
+        <div class="arch-arrow">↕ HTTPS REST (Java HttpClient)</div>
+        <div class="arch-layer" style="border-color:rgba(2,132,199,.3);background:linear-gradient(135deg,rgba(2,132,199,.1),rgba(6,182,212,.07));">
+          <div class="arch-icon" style="background:rgba(2,132,199,.2);">🤖</div>
+          <div>
+            <div class="h4" style="font-size:11.5px;color:#38bdf8;">Google Gemini Flash API</div>
+            <div class="body" style="font-size:10px;">generativelanguage.googleapis.com · 8s timeout · Input-hash caching · Multilingual fallback templates · API key on backend only</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Components & config -->
+      <div class="col" style="gap:9px;">
+        <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Backend Services</div>
+        <div class="grid2" style="gap:8px;">
+          <div class="card" style="padding:9px 11px;">
+            <div style="font-size:13px;margin-bottom:3px;">📈</div>
+            <div class="h4" style="font-size:10.5px;">ForecastService</div>
+            <div class="body" style="font-size:9.5px;">Ridge regression, 14-day demand, days-of-stock calculation</div>
+          </div>
+          <div class="card" style="padding:9px 11px;">
+            <div style="font-size:13px;margin-bottom:3px;">🔄</div>
+            <div class="h4" style="font-size:10.5px;">RedistributionService</div>
+            <div class="body" style="font-size:9.5px;">Greedy Haversine proximity matching, intra/inter-state routing</div>
+          </div>
+          <div class="card" style="padding:9px 11px;">
+            <div style="font-size:13px;margin-bottom:3px;">🔮</div>
+            <div class="h4" style="font-size:10.5px;">FederatedLearningService</div>
+            <div class="body" style="font-size:9.5px;">FedAvg simulation across 3 state nodes, 8 aggregation rounds</div>
+          </div>
+          <div class="card" style="padding:9px 11px;">
+            <div style="font-size:13px;margin-bottom:3px;">📊</div>
+            <div class="h4" style="font-size:10.5px;">ImpactService</div>
+            <div class="body" style="font-size:9.5px;">14-day stock-out counterfactual, patients protected calculation</div>
+          </div>
+        </div>
+
+        <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-top:4px;margin-bottom:2px;">Deployment</div>
+        <div class="card" style="padding:9px 11px;">
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:6px;font-size:10.5px;color:#94a3b8;">
+              <span style="font-size:13px;">🐋</span> Docker Compose (MySQL + Spring Boot + Nginx)
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:10.5px;color:#94a3b8;">
+              <span style="font-size:13px;">✅</span> 20/20 smoke tests passing
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-top:4px;margin-bottom:2px;">Frontend Components (14 modules)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+          <span class="pill" style="background:#1a2540;color:#94a3b8;font-size:9px;">MapPanel</span>
+          <span class="pill" style="background:#1a2540;color:#94a3b8;font-size:9px;">AlertsPanel</span>
+          <span class="pill" style="background:#1a2540;color:#94a3b8;font-size:9px;">FacilityPanel</span>
+          <span class="pill" style="background:#1a2540;color:#94a3b8;font-size:9px;">RedistributionPanel</span>
+          <span class="pill" style="background:#1a2540;color:#94a3b8;font-size:9px;">SituationBriefPanel</span>
+          <span class="pill" style="background:#1a2540;color:#94a3b8;font-size:9px;">AskAIPanel</span>
+          <span class="pill" style="background:#1a2540;color:#94a3b8;font-size:9px;">FederationPanel</span>
+          <span class="pill" style="background:#1a2540;color:#94a3b8;font-size:9px;">ScalePanel</span>
+          <span class="pill" style="background:#1a2540;color:#94a3b8;font-size:9px;">RegisterUploadModal</span>
+          <span class="pill" style="background:#1a2540;color:#94a3b8;font-size:9px;">KPIBar</span>
+          <span class="pill" style="background:#1a2540;color:#94a3b8;font-size:9px;">Header</span>
+          <span class="pill" style="background:#1a2540;color:#94a3b8;font-size:9px;">RoleBanner</span>
+          <span class="pill" style="background:#1a2540;color:#94a3b8;font-size:9px;">OutbreakModal</span>
+          <span class="pill" style="background:#1a2540;color:#94a3b8;font-size:9px;">CsvImportModal</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 9 — DATA & TRANSPARENCY
+══════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="logo-sm">Saha<span>Matrix</span></div>
+    <div class="slide-num">09 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="tag">Data Transparency</div>
+    <div class="h2 gradient-text" style="margin:4px 0 12px;">What Is Real vs Demo Data</div>
+
+    <div class="grid2" style="flex:1;gap:14px;">
+      <div class="col" style="gap:9px;">
+        <div class="card" style="border-color:rgba(16,185,129,.3);flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span class="badge badge-green">✓ Real-World Context</span>
+          </div>
+          <div class="tick"><span class="tick-icon">✓</span><div class="tick-text"><strong>Geographic data:</strong> Actual Indian state and district names — Maharashtra (Nagpur, Pune), Uttar Pradesh (Lucknow, Kanpur, Varanasi), Tamil Nadu (Chennai, Coimbatore, Madurai).</div></div>
+          <div class="tick"><span class="tick-icon">✓</span><div class="tick-text"><strong>Medicine list:</strong> Clinically valid medicines — Paracetamol, Amoxicillin, ORS, Insulin, Artemisinin ACT, Iron-Folic Acid, Metformin, Cotrimoxazole, Measles Vaccine.</div></div>
+          <div class="tick"><span class="tick-icon">✓</span><div class="tick-text"><strong>Problem framing:</strong> Based on documented challenges at India's PHC network (~30,000 facilities nationally).</div></div>
+          <div class="tick"><span class="tick-icon">✓</span><div class="tick-text"><strong>Algorithm logic:</strong> Haversine geodesic distance, FedAvg aggregation protocol, Ridge regression forecasting — all standard, validated approaches.</div></div>
+          <div class="tick"><span class="tick-icon">✓</span><div class="tick-text"><strong>AI responses:</strong> Strictly grounded in live telemetry provided to Gemini; zero hallucinated patient data.</div></div>
+        </div>
+      </div>
+
+      <div class="col" style="gap:9px;">
+        <div class="card" style="border-color:rgba(245,158,11,.3);flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span class="badge badge-orange">⚗️ Synthetic Demo Data</span>
+          </div>
+          <div class="tick"><span class="tick-icon">⚠</span><div class="tick-text" style="color:#fbbf24;"><strong>PHC stock levels:</strong> Synthetically generated using seed-42 reproducible data. Not sourced from real government or HMIS systems.</div></div>
+          <div class="tick"><span class="tick-icon">⚠</span><div class="tick-text" style="color:#fbbf24;"><strong>Consumption figures:</strong> Simulated daily consumption rates. Not actual patient dispensing records from any PHC.</div></div>
+          <div class="tick"><span class="tick-icon">⚠</span><div class="tick-text" style="color:#fbbf24;"><strong>PHC locations:</strong> Representative lat/lng coordinates within correct districts, not verified GPS positions.</div></div>
+          <div class="tick"><span class="tick-icon">⚠</span><div class="tick-text" style="color:#fbbf24;"><strong>Federated learning:</strong> Simulated FedAvg with synthetic state-node separation. Not a live distributed training deployment.</div></div>
+          <div class="tick"><span class="tick-icon">⚠</span><div class="tick-text" style="color:#fbbf24;"><strong>User uploaded images:</strong> Test register images supplied for OCR demo; architecture supports real uploaded images.</div></div>
+        </div>
+
+        <div class="card" style="border-color:rgba(99,102,241,.3);padding:10px 13px;">
+          <div style="font-size:11px;font-weight:700;color:#a5b4fc;margin-bottom:6px;">🏗️ Real-Data Path (Architecture-Ready)</div>
+          <div class="body" style="font-size:10px;">The backend DataStore, JPA entity layer, and CSV import modal are designed to ingest real PHC data from e-Aushadhi, HMIS CSV exports, or direct API feeds — with zero architectural changes required.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 10 — IMPACT
+══════════════════════════════════════════ -->
+<div class="slide" style="background:radial-gradient(ellipse at 70% 30%,rgba(16,185,129,.08) 0%,transparent 55%),var(--navy);">
+  <div class="slide-header">
+    <div class="logo-sm">Saha<span>Matrix</span></div>
+    <div class="slide-num">10 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="tag">Measurable Outcomes</div>
+    <div class="h2 gradient-text" style="margin:4px 0 4px;">What SahaMatrix Demonstrates</div>
+    <div class="muted" style="margin-bottom:12px;">Based on actual prototype behavior — no invented metrics</div>
+
+    <div class="grid2" style="gap:12px;margin-bottom:12px;">
+      <div class="col" style="gap:9px;">
+        <div class="card" style="border-color:rgba(16,185,129,.3);flex:1;">
+          <div style="display:flex;align-items:flex-start;gap:10px;">
+            <div style="font-size:24px;">🔍</div>
+            <div>
+              <div class="h4" style="color:#34d399;">Earlier Stock-Out Detection</div>
+              <div class="body" style="font-size:10.5px;margin-top:4px;">14-day demand forecasting surfaces stock-out risk days before they occur — vs paper-based systems where the shortage is only discovered when the shelf is empty.</div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="border-color:rgba(16,185,129,.3);flex:1;">
+          <div style="display:flex;align-items:flex-start;gap:10px;">
+            <div style="font-size:24px;">🗺️</div>
+            <div>
+              <div class="h4" style="color:#34d399;">Cross-PHC Visibility</div>
+              <div class="body" style="font-size:10.5px;margin-top:4px;">Unified GIS dashboard shows risk status of all 72 demo PHCs simultaneously. Decision-makers can compare facilities across districts and states in one view — without phone calls or paper reports.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col" style="gap:9px;">
+        <div class="card" style="border-color:rgba(56,189,248,.3);flex:1;">
+          <div style="display:flex;align-items:flex-start;gap:10px;">
+            <div style="font-size:24px;">🤖</div>
+            <div>
+              <div class="h4" style="color:#38bdf8;">AI-Assisted Decision Support</div>
+              <div class="body" style="font-size:10.5px;margin-top:4px;">Gemini provides grounded clinical context for each alert, replacing manual district-officer analysis. Executive situation briefs generated in seconds vs hours of manual report compilation.</div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="border-color:rgba(56,189,248,.3);flex:1;">
+          <div style="display:flex;align-items:flex-start;gap:10px;">
+            <div style="font-size:24px;">🔄</div>
+            <div>
+              <div class="h4" style="color:#38bdf8;">Coordinated Redistribution</div>
+              <div class="body" style="font-size:10.5px;margin-top:4px;">Greedy Haversine routing identifies the nearest viable surplus PHC. Batch redistribution applied with one click. Full transfer audit trail maintained in MySQL.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid4" style="gap:10px;">
+      <div class="stat-box">
+        <div class="num" style="color:#38bdf8;">72</div>
+        <div class="lbl">Demo PHCs<br/>monitored</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" style="color:#34d399;">14</div>
+        <div class="lbl">Day demand<br/>forecast horizon</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" style="color:#fbbf24;">4</div>
+        <div class="lbl">Gemini AI<br/>integrations</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" style="color:#a78bfa;">4</div>
+        <div class="lbl">Languages<br/>supported</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 11 — FUTURE SCOPE
+══════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div class="logo-sm">Saha<span>Matrix</span></div>
+    <div class="slide-num">11 / 12</div>
+  </div>
+  <div class="slide-body">
+    <div class="tag">Future Scope</div>
+    <div class="h2 gradient-text" style="margin:4px 0 4px;">Roadmap to Production</div>
+    <div class="muted" style="margin-bottom:14px;">All items below are clearly labeled as <strong style="color:#fbbf24;">future scope</strong> — not present in the current prototype</div>
+
+    <div class="grid2" style="gap:14px;flex:1;">
+      <div class="col" style="gap:8px;">
+        <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Data &amp; Integration</div>
+        <div class="future-item">
+          <div class="future-icon">🏛️</div>
+          <div class="future-text"><strong style="color:#c7d2fe;">Real Government PHC Data:</strong> Integration with e-Aushadhi, HMIS, and NHM data pipelines. Direct API feeds from state health department systems replacing synthetic demo data.</div>
+        </div>
+        <div class="future-item">
+          <div class="future-icon">📡</div>
+          <div class="future-text"><strong style="color:#c7d2fe;">Live Data Feeds:</strong> Real-time stock consumption pushed from point-of-care dispensing systems — eliminating manual register entry and CSV upload dependency.</div>
+        </div>
+        <div class="future-item">
+          <div class="future-icon">🏥</div>
+          <div class="future-text"><strong style="color:#c7d2fe;">Broader Health Resource Monitoring:</strong> Extend beyond medicines — beds, oxygen, vaccines, diagnostic equipment, and human resources across facilities.</div>
+        </div>
+      </div>
+
+      <div class="col" style="gap:8px;">
+        <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Platform &amp; Scale</div>
+        <div class="future-item">
+          <div class="future-icon">🔐</div>
+          <div class="future-text"><strong style="color:#c7d2fe;">Production-Grade Auth &amp; Security:</strong> OAuth2 / SSO integration with NIC login. Role-based access control enforced at API layer. Audit logging for all stock mutations.</div>
+        </div>
+        <div class="future-item">
+          <div class="future-icon">🌐</div>
+          <div class="future-text"><strong style="color:#c7d2fe;">Real Distributed Federated Learning:</strong> Current prototype simulates FedAvg in a single JVM. Production would run actual state-separated compute nodes with encrypted weight transmission.</div>
+        </div>
+        <div class="future-item">
+          <div class="future-icon">📱</div>
+          <div class="future-text"><strong style="color:#c7d2fe;">Mobile-First Field App:</strong> Progressive web app or native Android app for PHC pharmacists to submit daily stock counts, receive alerts, and request emergency resupply — even with intermittent connectivity.</div>
+        </div>
+        <div class="future-item">
+          <div class="future-icon">☁️</div>
+          <div class="future-text"><strong style="color:#c7d2fe;">National Scale Deployment:</strong> Cloud-native architecture designed for 30,000 PHCs across all 28 states. Performance benchmark prototype demonstrated &lt;6s for 5,000-facility redistribution on single machine.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 12 — CLOSING / LINKS
+══════════════════════════════════════════ -->
+<div class="slide" style="justify-content:center;align-items:center;background:radial-gradient(ellipse at 50% 60%,rgba(2,132,199,.12) 0%,rgba(6,182,212,.07) 40%,transparent 70%),var(--navy);">
+  <div style="text-align:center;padding:0 40px;max-width:720px;width:100%;">
+
+    <div style="font-size:40px;margin-bottom:16px;">🏥</div>
+    <div class="h1" style="font-size:34px;margin-bottom:8px;">
+      Together, <span class="gradient-text">No Stock-Out.</span>
+    </div>
+    <div style="font-size:14px;color:#94a3b8;margin-bottom:28px;line-height:1.5;max-width:540px;margin-left:auto;margin-right:auto;">
+      SahaMatrix — AI-powered healthcare supply intelligence, built with Google Gemini, for India's 30,000 Primary Health Centres.
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:580px;margin:0 auto 24px auto;text-align:left;">
+      <div class="card" style="padding:12px 14px;">
+        <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Source Code</div>
+        <div style="font-size:12px;color:#38bdf8;word-break:break-all;font-weight:600;">github.com/The-kanak/SahaMatrix</div>
+        <div style="font-size:10px;color:#475569;margin-top:3px;">Full stack: Spring Boot + React + MySQL + Gemini</div>
+      </div>
+      <div class="card" style="padding:12px 14px;">
+        <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Tech Stack</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:2px;">
+          <span class="pill" style="background:rgba(2,132,199,.15);color:#38bdf8;font-size:9px;">Google Gemini</span>
+          <span class="pill" style="background:rgba(16,185,129,.1);color:#34d399;font-size:9px;">Spring Boot</span>
+          <span class="pill" style="background:rgba(56,189,248,.1);color:#7dd3fc;font-size:9px;">React 18</span>
+          <span class="pill" style="background:rgba(245,158,11,.1);color:#fbbf24;font-size:9px;">MySQL</span>
+          <span class="pill" style="background:rgba(99,102,241,.1);color:#a5b4fc;font-size:9px;">Leaflet</span>
+          <span class="pill" style="background:rgba(168,85,247,.1);color:#d8b4fe;font-size:9px;">Docker</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;">
+      <span class="badge badge-blue">🤖 Powered by Google Gemini Flash</span>
+      <span class="badge badge-orange">⚗️ Demo uses synthetic PHC data</span>
+      <span class="badge badge-green">✅ 20/20 smoke tests passing</span>
+    </div>
+
+    <div style="margin-top:24px;font-size:10px;color:#334155;border-top:1px solid #1e3a5f;padding-top:12px;">
+      Build with AI: Code for Communities — Second Edition &nbsp;|&nbsp; Hack2Skill Hackathon &nbsp;|&nbsp; Team SahaMatrix &nbsp;|&nbsp; 2024–2025
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

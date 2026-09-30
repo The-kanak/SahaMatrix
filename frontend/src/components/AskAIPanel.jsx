@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Mic, MicOff, Send, Volume2, Sparkles, AlertCircle, MessageSquare } from 'lucide-react';
 import { api } from '../services/api';
@@ -9,6 +9,7 @@ export const AskAIPanel = ({ selectedState }) => {
   const [isListening, setIsListening] = useState(false);
   const [isAsking, setIsAsking] = useState(false);
   const [voiceNotice, setVoiceNotice] = useState(null);
+  const recognitionRef = useRef(null);
   const [history, setHistory] = useState([
     {
       q: 'Which districts in Uttar Pradesh face the highest shortage of Insulin?',
@@ -22,12 +23,51 @@ export const AskAIPanel = ({ selectedState }) => {
     },
   ]);
 
-  const sampleQuestions = [
-    'Which districts in UP will run out of insulin this week?',
-    'What is the stock status of Paracetamol in Maharashtra?',
-    'Are there any inter-state transfers to Tamil Nadu?',
-    'How many PHCs currently have critical stockout alerts?',
-  ];
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch (e) {}
+      }
+      if (window.speechSynthesis) {
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+      }
+    };
+  }, []);
+
+  const getSampleQuestions = () => {
+    switch (language) {
+      case 'hi':
+        return [
+          'उत्तर प्रदेश के कौन से जिलों में इस सप्ताह इंसुलिन खत्म हो जाएगा?',
+          'महाराष्ट्र में पैरासिटामोल के स्टॉक की क्या स्थिति है?',
+          'क्या तमिलनाडु के लिए कोई अंतर-राज्यीय स्थानांतरण हैं?',
+          'वर्तमान में कितने प्राथमिक स्वास्थ्य केंद्रों में गंभीर चेतावनी है?',
+        ];
+      case 'mr':
+        return [
+          'उत्तर प्रदेशातील कोणत्या जिल्ह्यांत या आठवड्यात इन्सुलिन संपेल?',
+          'महाराष्ट्रात पॅरासिटामॉलच्या साठ्याची काय स्थिती आहे?',
+          'तामिळनाडूसाठी कोणते आंतरराज्यीय हस्तांतरण आहेत का?',
+          'सध्या किती केंद्रांवर अतिगंभीर अलर्ट आहेत?',
+        ];
+      case 'ta':
+        return [
+          'இந்த வாரம் உத்தரபிரதேசத்தில் எந்த மாவட்டங்களில் இன்சுலின் தீர்ந்துவிடும்?',
+          'மகாராஷ்டிராவில் பாராசிட்டமால் இருப்பு நிலை என்ன?',
+          'தமிழ்நாட்டிற்கு ஏதேனும் மாநிலங்களுக்கு இடையேயான மாற்றங்கள் உள்ளதா?',
+          'தற்போது எத்தனை ஆரம்ப சுகாதார நிலையங்களில் தீவிர எச்சரிக்கைகள் உள்ளன?',
+        ];
+      default:
+        return [
+          'Which districts in UP will run out of insulin this week?',
+          'What is the stock status of Paracetamol in Maharashtra?',
+          'Are there any inter-state transfers to Tamil Nadu?',
+          'How many PHCs currently have critical stockout alerts?',
+        ];
+    }
+  };
+
+  const sampleQuestions = getSampleQuestions();
 
   const handleVoiceInput = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -36,9 +76,18 @@ export const AskAIPanel = ({ selectedState }) => {
       return;
     }
 
+    if (isListening) {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+      setIsListening(false);
+      return;
+    }
+
     setVoiceNotice(null);
     try {
       const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
       recognition.lang =
         language === 'hi' ? 'hi-IN' : language === 'mr' ? 'mr-IN' : language === 'ta' ? 'ta-IN' : 'en-US';
       recognition.interimResults = false;
@@ -47,7 +96,7 @@ export const AskAIPanel = ({ selectedState }) => {
       recognition.onend = () => setIsListening(false);
       recognition.onerror = (err) => {
         setIsListening(false);
-        if (err.error !== 'no-speech') {
+        if (err.error !== 'no-speech' && err.error !== 'aborted') {
           setVoiceNotice('Microphone error: ' + err.error);
         }
       };

@@ -13,7 +13,16 @@ export const CsvImportModal = ({ isOpen, onClose, onSuccess }) => {
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      const selected = e.target.files[0];
+      if (selected.size > 5 * 1024 * 1024) {
+        setResult({ error: 'CSV file size exceeds 5MB limit.' });
+        return;
+      }
+      if (!selected.name.toLowerCase().endsWith('.csv') && selected.type !== 'text/csv') {
+        setResult({ error: 'Please select a valid .csv file.' });
+        return;
+      }
+      setFile(selected);
       setResult(null);
     }
   };
@@ -32,7 +41,7 @@ export const CsvImportModal = ({ isOpen, onClose, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) return;
+    if (!file || isUploading) return;
 
     setIsUploading(true);
     try {

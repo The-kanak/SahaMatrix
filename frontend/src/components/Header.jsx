@@ -41,20 +41,18 @@ export const Header = ({
     >
       {/* Brand & Tagline */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div
+        <img
+          src="/logo.png"
+          alt="SahaMatrix Logo"
           style={{
-            backgroundColor: '#0284c7',
-            width: '36px',
-            height: '36px',
+            width: '38px',
+            height: '38px',
             borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#ffffff',
+            objectFit: 'contain',
+            backgroundColor: '#ffffff',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
           }}
-        >
-          <Activity size={22} />
-        </div>
+        />
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '18px', fontWeight: '800', letterSpacing: '-0.02em' }}>

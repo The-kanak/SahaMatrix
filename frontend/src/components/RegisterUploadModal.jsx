@@ -12,11 +12,26 @@ export const RegisterUploadModal = ({ isOpen, onClose, phcId, phcName, onSuccess
   const [extractedRows, setExtractedRows] = useState([]);
   const [errorMsg, setErrorMsg] = useState(null);
 
+  React.useEffect(() => {
+    return () => {
+      if (photoPreview && photoPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(photoPreview);
+      }
+    };
+  }, [photoPreview]);
+
   if (!isOpen) return null;
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        setErrorMsg('Image file size exceeds 5MB limit. Please select a smaller photo or compress it.');
+        return;
+      }
+      if (photoPreview && photoPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(photoPreview);
+      }
       setPhotoFile(file);
       setPhotoPreview(URL.createObjectURL(file));
       setExtractedRows([]);
@@ -30,6 +45,9 @@ export const RegisterUploadModal = ({ isOpen, onClose, phcId, phcName, onSuccess
       const res = await fetch('/sample-register.jpg');
       const blob = await res.blob();
       const file = new File([blob], 'sample-register.jpg', { type: 'image/jpeg' });
+      if (photoPreview && photoPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(photoPreview);
+      }
       setPhotoFile(file);
       setPhotoPreview('/sample-register.jpg');
       setExtractedRows([]);
@@ -39,12 +57,16 @@ export const RegisterUploadModal = ({ isOpen, onClose, phcId, phcName, onSuccess
   };
 
   const handleAnalyzePhoto = async () => {
-    if (!photoFile) return;
+    if (!photoFile || isAnalyzing) return;
     setIsAnalyzing(true);
     setErrorMsg(null);
     try {
       const rows = await api.uploadRegisterPhoto(photoFile, phcId);
-      setExtractedRows(rows || []);
+      if (!rows || rows.length === 0) {
+        setErrorMsg('No readable medicine rows detected. Please ensure the register image is clearly legible.');
+      } else {
+        setExtractedRows(rows);
+      }
     } catch (err) {
       setErrorMsg('Gemini Vision analysis failed: ' + err.message);
     } finally {
@@ -54,12 +76,13 @@ export const RegisterUploadModal = ({ isOpen, onClose, phcId, phcName, onSuccess
 
   const handleQuantityChange = (index, newQty) => {
     const updated = [...extractedRows];
-    updated[index].quantity = parseFloat(newQty) || 0;
+    const val = parseFloat(newQty);
+    updated[index] = { ...updated[index], quantity: isNaN(val) ? 0 : Math.max(0, val) };
     setExtractedRows(updated);
   };
 
   const handleConfirmUpdate = async () => {
-    if (!extractedRows || extractedRows.length === 0) return;
+    if (!extractedRows || extractedRows.length === 0 || isConfirming) return;
     setIsConfirming(true);
     setErrorMsg(null);
     try {
@@ -67,7 +90,7 @@ export const RegisterUploadModal = ({ isOpen, onClose, phcId, phcName, onSuccess
         phcId,
         extractedRows.map((r) => ({
           medicine: r.medicine,
-          quantity: parseFloat(r.quantity),
+          quantity: Math.max(0, parseFloat(r.quantity) || 0),
         }))
       );
       if (onSuccess) onSuccess();

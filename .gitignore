@@ -1,14 +1,24 @@
+# --- Build outputs ---
 target/
 node_modules/
-.idea/
-*.iml
-.DS_Store
+frontend/node_modules/
 dist/
 build/
+frontend/dist/
 
-# Local secret and environment files
+# --- IDE/Editor ---
+.idea/
+.vscode/
+*.iml
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Local secret and environment files ---
 .env
 .env.*
+!.env.example
 *.env
 application-local.properties
 application-secret.properties

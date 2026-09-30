@@ -8,9 +8,11 @@ export const RedistributionPanel = ({
   onApplySingle,
   onApplyAll,
   isApplying,
+  onHoverTransfer,
 }) => {
   const { t } = useLanguage();
   const [appliedIds, setAppliedIds] = useState(new Set());
+  const [hoveredRecId, setHoveredRecId] = useState(null);
 
   const handleApplyOne = async (recId) => {
     try {
@@ -97,15 +99,24 @@ export const RedistributionPanel = ({
         return (
           <div
             key={rec.id}
+            onMouseEnter={() => {
+              setHoveredRecId(rec.id);
+              if (onHoverTransfer) onHoverTransfer(rec);
+            }}
+            onMouseLeave={() => {
+              setHoveredRecId(null);
+              if (onHoverTransfer) onHoverTransfer(null);
+            }}
             style={{
-              backgroundColor: isApplied ? '#f8fafc' : '#ffffff',
+              backgroundColor: isApplied ? '#f8fafc' : hoveredRecId === rec.id ? '#f0f9ff' : '#ffffff',
               borderRadius: '8px',
-              border: isApplied ? '1px solid #e2e8f0' : '1px solid #cbd5e1',
+              border: isApplied ? '1px solid #e2e8f0' : hoveredRecId === rec.id ? '1.5px solid #0284c7' : '1px solid #cbd5e1',
               padding: '12px 14px',
               display: 'flex',
               flexDirection: 'column',
               gap: '8px',
               opacity: isApplied ? 0.7 : 1,
+              transition: 'border-color 0.15s, background-color 0.15s',
             }}
           >
             {/* Source & Destination */}

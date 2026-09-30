@@ -13,9 +13,15 @@ export const OutbreakModal = ({ isOpen, onClose, onApplyOutbreak }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const mult = Number(multiplier);
+    if (isNaN(mult) || mult < 1.0 || mult > 10.0) {
+      alert('Demand multiplier must be a valid number between 1.0x and 10.0x.');
+      return;
+    }
+    if (isSubmitting) return;
     setIsSubmitting(true);
     try {
-      await onApplyOutbreak(state, medicine, multiplier);
+      await onApplyOutbreak(state, medicine, mult);
       onClose();
     } catch (err) {
       alert('Outbreak simulation failed: ' + err.message);

@@ -24,16 +24,21 @@ export const FederationPanel = ({ flMetrics, onRetrain, isRetraining }) => {
     { state: 'TN', samples: 46, localMae: 5.1, federatedMae: 4.3 },
   ];
 
-  const roundLog = flMetrics?.roundLog || [
-    { round: 1, loss: 14.2 },
-    { round: 2, loss: 11.8 },
-    { round: 3, loss: 9.6 },
-    { round: 4, loss: 8.1 },
-    { round: 5, loss: 7.2 },
-    { round: 6, loss: 6.5 },
-    { round: 7, loss: 5.9 },
-    { round: 8, loss: 5.4 },
-  ];
+  const roundLog = flMetrics?.roundLog
+    ? flMetrics.roundLog.map((r) => ({
+        round: r.round,
+        loss: r.globalLoss !== undefined ? r.globalLoss : (r.loss !== undefined ? r.loss : 0),
+      }))
+    : [
+        { round: 1, loss: 14.2 },
+        { round: 2, loss: 11.8 },
+        { round: 3, loss: 9.6 },
+        { round: 4, loss: 8.1 },
+        { round: 5, loss: 7.2 },
+        { round: 6, loss: 6.5 },
+        { round: 7, loss: 5.9 },
+        { round: 8, loss: 5.4 },
+      ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>

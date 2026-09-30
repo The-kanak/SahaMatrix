@@ -9,7 +9,7 @@ export const RoleBanner = ({ role, selectedState, selectedDistrict, selectedPhcN
     switch (role) {
       case 'secretary':
         return {
-          icon: <Building2 size={18} className="text-blue-600" />,
+          icon: <Building2 size={18} style={{ color: '#2563eb' }} />,
           title: t('roleSecretary'),
           desc: t('roleSecretaryDesc'),
           bg: '#eff6ff',
@@ -19,7 +19,7 @@ export const RoleBanner = ({ role, selectedState, selectedDistrict, selectedPhcN
         };
       case 'cmo':
         return {
-          icon: <MapPin size={18} className="text-emerald-600" />,
+          icon: <MapPin size={18} style={{ color: '#059669' }} />,
           title: t('roleCMO'),
           desc: t('roleCMODesc'),
           bg: '#ecfdf5',
@@ -30,7 +30,7 @@ export const RoleBanner = ({ role, selectedState, selectedDistrict, selectedPhcN
       case 'pharmacist':
       default:
         return {
-          icon: <Stethoscope size={18} className="text-purple-600" />,
+          icon: <Stethoscope size={18} style={{ color: '#9333ea' }} />,
           title: t('rolePharmacist'),
           desc: t('rolePharmacistDesc'),
           bg: '#faf5ff',

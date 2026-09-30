@@ -43,20 +43,17 @@ export const SituationBriefPanel = ({
       {/* Top Header & Controls */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div
+          <img
+            src="/logo.png"
+            alt="SM Logo"
             style={{
-              backgroundColor: '#e0f2fe',
-              color: '#0284c7',
               width: '32px',
               height: '32px',
               borderRadius: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              objectFit: 'contain',
+              border: '1px solid #e2e8f0',
             }}
-          >
-            <FileText size={18} />
-          </div>
+          />
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>

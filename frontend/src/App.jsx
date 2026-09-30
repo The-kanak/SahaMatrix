@@ -32,10 +32,10 @@ function SahaMatrixDashboard() {
   const [activeTab, setActiveTab] = useState('alerts');
   const [role, setRole] = useState('secretary'); // 'secretary' | 'cmo' | 'pharmacist'
 
-  // Filters & Selected Facility
-  const [selectedState, setSelectedState] = useState('ALL');
-  const [selectedDistrict, setSelectedDistrict] = useState('');
-  const [selectedPhcId, setSelectedPhcId] = useState('phc-up-01');
+  // Filters & Selected Facility (Default to Nagpur, Maharashtra)
+  const [selectedState, setSelectedState] = useState('MH');
+  const [selectedDistrict, setSelectedDistrict] = useState('Nagpur');
+  const [selectedPhcId, setSelectedPhcId] = useState('phc-mh-01');
   const [selectedMedicine, setSelectedMedicine] = useState('Paracetamol');
   const [activeTransfer, setActiveTransfer] = useState(null);
 
@@ -95,7 +95,7 @@ function SahaMatrixDashboard() {
 
       const medToFetch = medicine || selectedMedicine;
       const forecast = await api.getForecast(phcId, medToFetch);
-      setForecastData(forecast || []);
+      setForecastData(forecast?.forecast || forecast || []);
     } catch (err) {
       console.error(`Failed to load PHC ${phcId}:`, err);
     }
@@ -174,9 +174,44 @@ function SahaMatrixDashboard() {
     }
   };
 
+  const handleStateChange = (newState) => {
+    setSelectedState(newState);
+    setSelectedDistrict('');
+    if (newState !== 'ALL') {
+      const firstPhcInState = phcs.find((p) => p.state === newState);
+      if (firstPhcInState) {
+        setSelectedPhcId(firstPhcInState.id);
+      }
+    }
+  };
+
+  const handleDistrictChange = (newDistrict) => {
+    setSelectedDistrict(newDistrict);
+    if (newDistrict) {
+      const firstPhcInDistrict = phcs.find(
+        (p) => (selectedState === 'ALL' || p.state === selectedState) && p.district === newDistrict
+      );
+      if (firstPhcInDistrict) {
+        setSelectedPhcId(firstPhcInDistrict.id);
+      }
+    }
+  };
+
+  const handleSelectFacility = (id) => {
+    setSelectedPhcId(id);
+    const facility = phcs.find((p) => p.id === id);
+    if (facility) {
+      if (selectedState !== 'ALL' && facility.state !== selectedState) {
+        setSelectedState(facility.state);
+        setSelectedDistrict('');
+      }
+    }
+    loadPhcDetail(id, selectedMedicine);
+  };
+
   const handleApplyOutbreak = async (st, med, mult) => {
     await api.simulateOutbreak(st, med, mult);
-    setSelectedState(st);
+    handleStateChange(st);
     await loadNetworkData();
     await loadSituationBrief();
     setActiveTab('alerts');
@@ -265,30 +300,117 @@ function SahaMatrixDashboard() {
       {/* 3. National KPI Bar */}
       <KPIBar summaryData={summaryData} impactData={impactData} />
 
+      {/* 3.5 Interactive Demo Storyline Guide Bar */}
+      <div
+        style={{
+          margin: '4px 16px 8px 16px',
+          padding: '8px 14px',
+          backgroundColor: '#ffffff',
+          borderRadius: '8px',
+          border: '1px solid #cbd5e1',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '8px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ backgroundColor: '#0284c7', color: '#ffffff', fontSize: '11px', fontWeight: '800', padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.02em' }}>
+            DEMO WALKTHROUGH
+          </span>
+          <span style={{ fontSize: '12px', color: '#334155', fontWeight: '600' }}>
+            Health Supply Chain Resilience in 3 Steps:
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setShowOutbreakModal(true)}
+            style={{
+              backgroundColor: '#fee2e2',
+              color: '#dc2626',
+              border: '1px solid #fecaca',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              fontSize: '11px',
+              fontWeight: '700',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            ⚡ 1. Simulate Outbreak Surge
+          </button>
+
+          <span style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 'bold' }}>➔</span>
+
+          <button
+            onClick={() => setActiveTab('transfers')}
+            style={{
+              backgroundColor: '#e0f2fe',
+              color: '#0369a1',
+              border: '1px solid #bae6fd',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              fontSize: '11px',
+              fontWeight: '700',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            🔄 2. Review AI Redistribution ({recommendations.length})
+          </button>
+
+          <span style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 'bold' }}>➔</span>
+
+          <button
+            onClick={() => setActiveTab('brief')}
+            style={{
+              backgroundColor: '#ecfdf5',
+              color: '#059669',
+              border: '1px solid #a7f3d0',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              fontSize: '11px',
+              fontWeight: '700',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            📋 3. Gemini Brief & Voice
+          </button>
+        </div>
+      </div>
+
       {/* 4. Main Two-Column Layout */}
       <main
+        className="dashboard-main"
         style={{
           flex: 1,
           display: 'flex',
-          padding: '8px 16px 16px 16px',
+          padding: '4px 16px 16px 16px',
           gap: '14px',
           minHeight: 0,
         }}
       >
         {/* Left Column (58%): Interactive GIS Network Map */}
-        <div style={{ flex: '0 0 58%', display: 'flex', flexDirection: 'column' }}>
+        <div className="dashboard-map-col" style={{ flex: '0 0 calc(58% - 7px)', display: 'flex', flexDirection: 'column' }}>
           <MapPanel
-            phcs={filteredPhcs}
+            phcs={phcs}
             selectedState={selectedState}
-            setSelectedState={setSelectedState}
+            setSelectedState={handleStateChange}
             selectedDistrict={selectedDistrict}
-            setSelectedDistrict={setSelectedDistrict}
+            setSelectedDistrict={handleDistrictChange}
             districts={availableDistricts}
             selectedPhcId={selectedPhcId}
-            onSelectPhc={(id) => {
-              setSelectedPhcId(id);
-              if (role === 'pharmacist') setActiveTab('phc');
-            }}
+            onSelectPhc={handleSelectFacility}
             selectedPhc={selectedPhcObj}
             activeTransfer={activeTransfer}
           />
@@ -296,8 +418,9 @@ function SahaMatrixDashboard() {
 
         {/* Right Column (42%): Tabbed Intelligence Console */}
         <div
+          className="dashboard-tabs-col"
           style={{
-            flex: '0 0 42%',
+            flex: '0 0 calc(42% - 7px)',
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: '#ffffff',
@@ -494,12 +617,9 @@ function SahaMatrixDashboard() {
               <AlertsPanel
                 alerts={alerts}
                 selectedPhcId={selectedPhcId}
-                onSelectPhc={(id) => {
-                  setSelectedPhcId(id);
-                  loadPhcDetail(id, selectedMedicine);
-                }}
+                onSelectPhc={handleSelectFacility}
                 onExplainPhc={(id) => {
-                  setSelectedPhcId(id);
+                  handleSelectFacility(id);
                 }}
               />
             )}
@@ -510,6 +630,7 @@ function SahaMatrixDashboard() {
                 onApplySingle={handleApplySingleTransfer}
                 onApplyAll={handleApplyAllTransfers}
                 isApplying={isApplying}
+                onHoverTransfer={setActiveTransfer}
               />
             )}
 
@@ -528,7 +649,7 @@ function SahaMatrixDashboard() {
                 briefData={briefData}
                 briefState={selectedState}
                 setBriefState={(st) => {
-                  setSelectedState(st);
+                  handleStateChange(st);
                   loadSituationBrief();
                 }}
                 onRefreshBrief={loadSituationBrief}

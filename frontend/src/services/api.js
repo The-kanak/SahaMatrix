@@ -57,9 +57,12 @@ export const api = {
     const res = await fetch('/api/recommendations/apply', {
       method: 'POST',
       headers: jsonHeaders,
-      body: JSON.stringify({ acceptedRecommendationIds }),
+      body: JSON.stringify({ ids: acceptedRecommendationIds }),
     });
-    if (!res.ok) throw new Error('Failed to apply recommendations');
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      throw new Error(errText || 'Failed to apply recommendations');
+    }
     return res.json();
   },
 

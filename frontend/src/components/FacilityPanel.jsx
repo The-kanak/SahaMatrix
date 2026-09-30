@@ -40,7 +40,7 @@ export const FacilityPanel = ({
     );
   }
 
-  const stocks = selectedPhc.stocks || [];
+  const stocks = selectedPhc.stock || selectedPhc.stocks || [];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -103,11 +103,11 @@ export const FacilityPanel = ({
         <div style={{ display: 'flex', gap: '20px', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f1f5f9' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#475569' }}>
             <Bed size={15} style={{ color: '#0284c7' }} />
-            <span>{selectedPhc.beds || 10} {t('beds')}</span>
+            <span>{selectedPhc.bedsOccupied != null && selectedPhc.bedsTotal != null ? `${selectedPhc.bedsOccupied}/${selectedPhc.bedsTotal}` : (selectedPhc.beds || 10)} {t('beds')}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#475569' }}>
             <Users size={15} style={{ color: '#0284c7' }} />
-            <span>{selectedPhc.staff || 6} {t('staff')}</span>
+            <span>{selectedPhc.staffPresent != null && selectedPhc.staffTotal != null ? `${selectedPhc.staffPresent}/${selectedPhc.staffTotal}` : (selectedPhc.staff || 6)} {t('staff')}</span>
           </div>
           <div style={{ fontSize: '11px', color: '#94a3b8', marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
             {t('resupplyLeadTime')}
@@ -210,37 +210,45 @@ export const FacilityPanel = ({
           </div>
         </div>
 
-        {forecastData && forecastData.length > 0 ? (
-          <div style={{ height: '180px', width: '100%', marginTop: '6px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={forecastData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: 10, fill: '#64748b' }}
-                  tickFormatter={(val) => val ? val.slice(5) : ''}
-                />
-                <YAxis tick={{ fontSize: 10, fill: '#64748b' }} />
-                <Tooltip
-                  formatter={(val) => [`${val} units`, 'Projected Demand']}
-                  labelFormatter={(lbl) => `Date: ${lbl}`}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="units"
-                  stroke="#0284c7"
-                  strokeWidth={2}
-                  dot={{ r: 3, fill: '#0284c7' }}
-                  activeDot={{ r: 5 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        ) : (
-          <div style={{ textAlign: 'center', padding: '30px', color: '#94a3b8', fontSize: '12px' }}>
-            Loading forecast curve...
-          </div>
-        )}
+        {(() => {
+          const forecastList = Array.isArray(forecastData)
+            ? forecastData
+            : (forecastData?.forecast || []);
+          if (forecastList.length > 0) {
+            return (
+              <div style={{ height: '180px', width: '100%', marginTop: '6px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={forecastList} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 10, fill: '#64748b' }}
+                      tickFormatter={(val) => val ? val.slice(5) : ''}
+                    />
+                    <YAxis tick={{ fontSize: 10, fill: '#64748b' }} />
+                    <Tooltip
+                      formatter={(val) => [`${val} units`, 'Projected Demand']}
+                      labelFormatter={(lbl) => `Date: ${lbl}`}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="units"
+                      stroke="#0284c7"
+                      strokeWidth={2}
+                      dot={{ r: 3, fill: '#0284c7' }}
+                      activeDot={{ r: 5 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            );
+          }
+          return (
+            <div style={{ textAlign: 'center', padding: '30px', color: '#94a3b8', fontSize: '12px' }}>
+              Loading forecast curve...
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
